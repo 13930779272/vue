@@ -1,4 +1,4 @@
-// computed 的缺陷
+// computed2
 const data = {
   name: "任务1",
   type: "job",
@@ -114,48 +114,14 @@ function effect(fn, options = {}) {
 const fn = effect(() => obj.num + obj.num1, {
   lazy: true
 });
-function computed(getter) {
-  // 用来缓存上一次的值
-  let value
-  // 用来判断是否需要重新计算
-  let dirty = true
-  const effectFn = effect(getter, {
-    lazy: true,
-    // 当值修改后会触发,但是不会触发副作用函数，只是把dirty设置为true，以便下次读取值时进行重新计算
-    scheduler: () => {
-      dirty = true
-      console.log(obj, 'scheduler')
-      trigger(obj, "value")
-    }
-  });
-  const obj = {
-    get value() {
-      if (dirty) {
-        value = effectFn()
-        dirty = false
-      }
-      console.log(obj, "track")
-      track(obj, "value")
-      return value
-    }
-  }
-  return obj;
-}
-const numComputed = computed(() => {
-  console.log('重新计算了一次')
-  return obj.num + obj.num1
-});
 
-effect(() => {
-  console.log(numComputed.value, '测试修改computed 的值后会不会更新')
-})
+console.log(fn())
+// 当改变num 值时再次执行函数会更新
+obj.num++
+console.log(fn())
 
-setTimeout(() => {
-  console.log('值改变了')
-  obj.num++
-}, 2000)
-
-
+// 当不改变值时执行副作用函数也会重新执行，computed 只有在值改变之后再次读取才会重新执行，值没有改变不需要重新执行
+console.log(fn())
 console.log('执行结束', obj.num)
 
 

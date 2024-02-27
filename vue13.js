@@ -1,4 +1,4 @@
-// computed 的缺陷
+// computed
 const data = {
   name: "任务1",
   type: "job",
@@ -124,8 +124,6 @@ function computed(getter) {
     // 当值修改后会触发,但是不会触发副作用函数，只是把dirty设置为true，以便下次读取值时进行重新计算
     scheduler: () => {
       dirty = true
-      console.log(obj, 'scheduler')
-      trigger(obj, "value")
     }
   });
   const obj = {
@@ -134,8 +132,6 @@ function computed(getter) {
         value = effectFn()
         dirty = false
       }
-      console.log(obj, "track")
-      track(obj, "value")
       return value
     }
   }
@@ -145,15 +141,11 @@ const numComputed = computed(() => {
   console.log('重新计算了一次')
   return obj.num + obj.num1
 });
-
-effect(() => {
-  console.log(numComputed.value, '测试修改computed 的值后会不会更新')
-})
-
-setTimeout(() => {
-  console.log('值改变了')
-  obj.num++
-}, 2000)
+// 连续调用多次每次都会执行
+console.log(numComputed.value)
+console.log(numComputed.value)
+obj.num++
+console.log(numComputed.value)
 
 
 console.log('执行结束', obj.num)

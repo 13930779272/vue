@@ -21,6 +21,11 @@ function track(target, key) {
   }
   deps.add(activeEffect)
 }
+// { weakMap
+//   obj: { map
+//     name: [] set
+//   }
+// }
 function trigger(target, key) {
   const depsMap = bucket.get(target);
   if (!depsMap) return;

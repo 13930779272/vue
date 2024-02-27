@@ -1,10 +1,9 @@
-// computed 的缺陷
+// lazy 只有在主动执行时才会触发副作用函数，否则不会触发
 const data = {
   name: "任务1",
   type: "job",
   flag: true,
-  num: 2,
-  num1: 1
+  num: 0
 }
 let activeEffect;
 // 存储副作用函数的桶
@@ -26,7 +25,6 @@ function flushJob () {
     isFlushing = false
   })
 }
-
 function track(target, key) {
   if (!activeEffect) return target[key];
   // 根据target从bucket取出 depsMap
@@ -94,10 +92,9 @@ function effect(fn, options = {}) {
     cleanup(effectFn);
     activeEffect = effectFn;
     effectStack.push(effectFn)
-    const res = fn();
+    fn();
     effectStack.pop()
     activeEffect = effectStack[effectStack.length - 1];
-    return res;
   }
   effectFn.options = options;
   effectFn.deps = [];
@@ -111,50 +108,22 @@ function effect(fn, options = {}) {
 // 配置lazy属性后通过effect 返回值拿到副作用函数，然后手动执行
 // lazy 是在注册副作用函数时不执行副作用函数，而是在手动执行，是在注册时就产生效果
 // scheduler 是在副作用函数触发时直接执行的函数并且参数是副作用函数
-const fn = effect(() => obj.num + obj.num1, {
-  lazy: true
-});
-function computed(getter) {
-  // 用来缓存上一次的值
-  let value
-  // 用来判断是否需要重新计算
-  let dirty = true
-  const effectFn = effect(getter, {
-    lazy: true,
-    // 当值修改后会触发,但是不会触发副作用函数，只是把dirty设置为true，以便下次读取值时进行重新计算
-    scheduler: () => {
-      dirty = true
-      console.log(obj, 'scheduler')
-      trigger(obj, "value")
-    }
-  });
-  const obj = {
-    get value() {
-      if (dirty) {
-        value = effectFn()
-        dirty = false
-      }
-      console.log(obj, "track")
-      track(obj, "value")
-      return value
-    }
+const fn = effect(() => {
+  console.log('重新渲染了一层', obj.num)
+},{
+  scheduler: (fn) => {
+    console.log(fn, '没有执行副作用函数')
   }
-  return obj;
-}
-const numComputed = computed(() => {
-  console.log('重新计算了一次')
-  return obj.num + obj.num1
 });
 
-effect(() => {
-  console.log(numComputed.value, '测试修改computed 的值后会不会更新')
-})
+
+obj.num++
+obj.num++
 
 setTimeout(() => {
-  console.log('值改变了')
-  obj.num++
-}, 2000)
-
+  // 只有在主动执行时才会触发副作用函数，否则不会触发
+  fn()
+}, 3000)
 
 console.log('执行结束', obj.num)
 
