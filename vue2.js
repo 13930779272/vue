@@ -86,7 +86,7 @@ setTimeout(() => {
 
 setTimeout(() => {
   obj.type = '33'
-}, 2000)
+}, 3000)
 
 
 

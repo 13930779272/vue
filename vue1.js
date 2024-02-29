@@ -37,10 +37,10 @@ effect(() => {
 setTimeout(() => {
   obj.name = '22222'
 }, 2000)
-
+// 当我修改其他属性时也会触发更新
 setTimeout(() => {
   obj.type = '33'
-}, 2000)
+}, 3000)
 
 
 

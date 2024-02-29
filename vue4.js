@@ -1,4 +1,4 @@
-// 分支切换与cleanup
+// 分支切换与cleanup 解决死循环
 const data = {
   name: "任务1",
   type: "job",
@@ -28,6 +28,10 @@ function trigger(target, key) {
   const depsMap = bucket.get(target);
   if (!depsMap) return;
   const effects = depsMap.get(key);
+  // 在 trigger 函数内部，我们遍历 effects 集合，它是一个 Set 集合，
+  // 里面存储着副作用函数。当副作用函数执行时，会调用 cleanup 进行清除，
+  // 实际上就是从 effects 集合中将当前执行的副作用函数剔除，但是副作用函数的执行会导致其重新被收集到集合中，
+  // 而此时对于 effects 集合的遍历仍在进行。
   const effectToRun = new Set(effects);
   effectToRun.forEach(effectFn => effectFn())
   // effects && effects.forEach(fn => fn());

@@ -1,4 +1,4 @@
-// 分支切换与cleanup (有死循环！！！下一篇处理)
+// 分支切换与cleanup (有死循环！！！下一篇处理) 清除遗留的副作用函数
 const data = {
   name: "任务1",
   type: "job",
@@ -32,6 +32,7 @@ function trigger(target, key) {
   // bucket.forEach(fn => fn())
   // return true
 }
+// 清除遗留的副作用函数
 function cleanup(effectFn) {
   console.log(effectFn.deps.length)
   for (let i = 0;i < effectFn.deps.length;i++) {
