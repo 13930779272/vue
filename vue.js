@@ -117,12 +117,19 @@ function watch(source, cb) {
   } else {
     getter = () => traverse(source)
   }
-  effect(() => getter(), {
+  // 定义新值和旧值
+  let oldValue, newValue;
+  const effectFn = effect(() => getter(), {
+    lazy: true,
     scheduler() {
+      newValue = effectFn();
       console.log("scheduler 执行")
-      cb()
+      cb(oldValue, newValue);
+      oldValue = newValue;
     }
-  })
+  });
+  // 第一次旧值就是新值
+  oldValue = effectFn();
 }
 function traverse(value, seen = new Set()) {
   if (typeof value !== "object" || value === null || seen.has(value)) return;
@@ -136,8 +143,8 @@ function traverse(value, seen = new Set()) {
 //   console.log('watch 监听 obj.num 变了', obj.num)
 // })
 
-watch(() => obj.num, () => {
-  console.log('watch 监听 obj.num 变了', obj.num)
+watch(() => obj.num, (oldVal, newVal) => {
+  console.log('watch 监听 obj.num 变了', obj.num, oldVal, newVal)
 })
 
 setTimeout(() => {

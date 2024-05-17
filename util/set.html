@@ -6,14 +6,28 @@
 </head>
 <body>
 <script>
-  const set = new Set();
-  set.add(1);
+  // const set = new Set();
+  // set.add(1);
+  //
+  // set.forEach(() => {
+  //   set.delete(1);
+  //   set.add(1);
+  //   console.log()
+  // })
 
-  set.forEach(() => {
-    set.delete(1);
-    set.add(1);
-    console.log()
-  })
+  // 暂时性死区的本质就是，只要一进入当前作用域，所要使用的变量就已经存在了，但是不可获取，只有等到声明变量的那一行代码出现，才可以获取和使用该变量。
+  function fn1() {
+    console.log('fn1');
+    function fn2() {
+      console.log('fn2', num);
+    }
+    // fn2();
+    const num = 1;
+    fn2();
+    return fn2;
+  }
+  const fn2 = fn1();
+  // fn2();
 
 </script>
 </body>
